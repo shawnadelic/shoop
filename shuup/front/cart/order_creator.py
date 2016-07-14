@@ -8,5 +8,5 @@
 from shuup.core.order_creator import OrderCreator
 
 
-class BasketOrderCreator(OrderCreator):
+class CartOrderCreator(OrderCreator):
     pass

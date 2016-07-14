@@ -12,14 +12,14 @@ from shuup.admin.toolbar import get_default_edit_toolbar
 from shuup.admin.utils.views import CreateOrUpdateView
 from shuup.apps.provides import get_provide_objects
 from shuup.campaigns.admin_module.form_parts import (
-    BasketBaseFormPart, BasketConditionsFormPart,
-    BasketDiscountEffectsFormPart, BasketLineEffectsFormPart,
+    CartBaseFormPart, CartConditionsFormPart,
+    CartDiscountEffectsFormPart, CartLineEffectsFormPart,
     CatalogBaseFormPart, CatalogConditionsFormPart, CatalogEffectsFormPart,
     CatalogFiltersFormPart
 )
 from shuup.campaigns.admin_module.forms import CouponForm
 from shuup.campaigns.models.campaigns import (
-    BasketCampaign, CatalogCampaign, Coupon
+    CartCampaign, CatalogCampaign, Coupon
 )
 from shuup.campaigns.utils import _Breadcrumbed
 
@@ -89,18 +89,18 @@ class CatalogCampaignEditView(_Breadcrumbed, CampaignEditView):
             self.request, form, "filters_%s" % form._meta.model.__name__.lower(), object)
 
 
-class BasketCampaignEditView(_Breadcrumbed, CampaignEditView):
-    model = BasketCampaign
-    condition_key = "campaign_basket_condition"
+class CartCampaignEditView(_Breadcrumbed, CampaignEditView):
+    model = CartCampaign
+    condition_key = "campaign_cart_condition"
     effects = [
-        ("campaign_basket_discount_effect_form", BasketDiscountEffectsFormPart),
-        ("campaign_basket_line_effect_form", BasketLineEffectsFormPart)
+        ("campaign_cart_discount_effect_form", CartDiscountEffectsFormPart),
+        ("campaign_cart_line_effect_form", CartLineEffectsFormPart)
     ]
-    base_form_part_classes = [BasketBaseFormPart]
-    rules_form_part_class = BasketConditionsFormPart
+    base_form_part_classes = [CartBaseFormPart]
+    rules_form_part_class = CartConditionsFormPart
 
-    parent_name = _("Basket Campaign")
-    parent_url = "shuup_admin:basket_campaigns.list"
+    parent_name = _("Cart Campaign")
+    parent_url = "shuup_admin:cart_campaigns.list"
 
 
 class CouponEditView(_Breadcrumbed, CreateOrUpdateView):

@@ -34,26 +34,26 @@ class CampaignAppConfig(AppConfig):
             "shuup.campaigns.modules:CatalogCampaignModule"
         ],
         "order_source_modifier_module": [
-            "shuup.campaigns.modules:BasketCampaignModule"
+            "shuup.campaigns.modules:CartCampaignModule"
         ],
         "admin_module": [
             "shuup.campaigns.admin_module:CampaignAdminModule",
         ],
-        "campaign_basket_condition": [
-            "shuup.campaigns.admin_module.forms:BasketTotalProductAmountConditionForm",
-            "shuup.campaigns.admin_module.forms:BasketTotalAmountConditionForm",
-            "shuup.campaigns.admin_module.forms:BasketMaxTotalProductAmountConditionForm",
-            "shuup.campaigns.admin_module.forms:BasketMaxTotalAmountConditionForm",
-            "shuup.campaigns.admin_module.forms:ProductsInBasketConditionForm",
-            "shuup.campaigns.admin_module.forms:ContactGroupBasketConditionForm",
-            "shuup.campaigns.admin_module.forms:ContactBasketConditionForm",
-            "shuup.campaigns.admin_module.forms:CategoryProductsBasketConditionForm"
+        "campaign_cart_condition": [
+            "shuup.campaigns.admin_module.forms:CartTotalProductAmountConditionForm",
+            "shuup.campaigns.admin_module.forms:CartTotalAmountConditionForm",
+            "shuup.campaigns.admin_module.forms:CartMaxTotalProductAmountConditionForm",
+            "shuup.campaigns.admin_module.forms:CartMaxTotalAmountConditionForm",
+            "shuup.campaigns.admin_module.forms:ProductsInCartConditionForm",
+            "shuup.campaigns.admin_module.forms:ContactGroupCartConditionForm",
+            "shuup.campaigns.admin_module.forms:ContactCartConditionForm",
+            "shuup.campaigns.admin_module.forms:CategoryProductsCartConditionForm"
         ],
-        "campaign_basket_discount_effect_form": [
-            "shuup.campaigns.admin_module.forms:BasketDiscountAmountForm",
-            "shuup.campaigns.admin_module.forms:BasketDiscountPercentageForm"
+        "campaign_cart_discount_effect_form": [
+            "shuup.campaigns.admin_module.forms:CartDiscountAmountForm",
+            "shuup.campaigns.admin_module.forms:CartDiscountPercentageForm"
         ],
-        "campaign_basket_line_effect_form": [
+        "campaign_cart_line_effect_form": [
             "shuup.campaigns.admin_module.forms:FreeProductLineForm",
             "shuup.campaigns.admin_module.forms:DiscountFromProductForm",
             "shuup.campaigns.admin_module.forms:DiscountFromCategoryProductsForm",

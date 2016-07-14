@@ -59,9 +59,9 @@ def get_contacts_in_sales_range(shop, min_value, max_value):
     return results
 
 
-def get_product_ids_and_quantities(basket):
+def get_product_ids_and_quantities(cart):
     q_counter = Counter()
-    for line in basket.get_lines():
+    for line in cart.get_lines():
         if not line.product:
             continue
         q_counter[line.product.id] += line.quantity

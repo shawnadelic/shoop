@@ -13,15 +13,15 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from shuup.campaigns.models.basket_conditions import \
-    BasketTotalProductAmountCondition
-from shuup.campaigns.models.basket_effects import BasketDiscountAmount
+from shuup.campaigns.models.cart_conditions import \
+    CartTotalProductAmountCondition
+from shuup.campaigns.models.cart_effects import CartDiscountAmount
 from shuup.campaigns.models.campaigns import (
-    BasketCampaign, Coupon, CouponUsage
+    CartCampaign, Coupon, CouponUsage
 )
 from shuup.core.models import OrderLineType
 from shuup.core.order_creator import OrderCreator
-from shuup.front.basket import get_basket
+from shuup.front.cart import get_cart
 from shuup.testing.factories import (
     create_product, create_random_order, create_random_person,
     get_default_shop, get_default_supplier, get_initial_order_status
@@ -32,11 +32,11 @@ from shuup_tests.utils import printable_gibberish
 
 def get_default_campaign(coupon=None):
     shop = get_default_shop()
-    campaign = BasketCampaign.objects.create(
+    campaign = CartCampaign.objects.create(
             shop=shop, public_name="test", name="test",
             coupon=coupon, active=True
     )
-    BasketDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
+    CartDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
     return campaign
 
 @pytest.mark.django_db
@@ -124,44 +124,44 @@ def test_no_two_same_codes_active():
 def test_campaign_with_coupons(rf):
     status = get_initial_order_status()
     request, shop, group = initialize_test(rf, False)
-    basket = get_basket(request)
+    cart = get_cart(request)
     supplier = get_default_supplier()
 
     for x in range(2):
         product = create_product(printable_gibberish(), shop, supplier=supplier, default_price="50")
-        basket.add_product(supplier=supplier, shop=shop, product=product, quantity=1)
+        cart.add_product(supplier=supplier, shop=shop, product=product, quantity=1)
 
     dc = Coupon.objects.create(code="TEST", active=True)
-    campaign = BasketCampaign.objects.create(
+    campaign = CartCampaign.objects.create(
             shop=shop,
             name="test", public_name="test",
             coupon=dc,
             active=True
     )
-    BasketDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
-    rule = BasketTotalProductAmountCondition.objects.create(value=2)
+    CartDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
+    rule = CartTotalProductAmountCondition.objects.create(value=2)
     campaign.conditions.add(rule)
     campaign.save()
 
-    assert len(basket.get_final_lines()) == 2  # no discount was applied because coupon is required
+    assert len(cart.get_final_lines()) == 2  # no discount was applied because coupon is required
 
-    basket.add_code(dc.code)
+    cart.add_code(dc.code)
 
-    assert len(basket.get_final_lines()) == 3  # now basket has codes so they will be applied too
-    assert OrderLineType.DISCOUNT in [l.type for l in basket.get_final_lines()]
+    assert len(cart.get_final_lines()) == 3  # now cart has codes so they will be applied too
+    assert OrderLineType.DISCOUNT in [l.type for l in cart.get_final_lines()]
 
     # Ensure codes persist between requests, so do what the middleware would, i.e.
-    basket.save()
-    # and then reload the basket:
-    del request.basket
-    basket = get_basket(request)
+    cart.save()
+    # and then reload the cart:
+    del request.cart
+    cart = get_cart(request)
 
-    assert basket.codes == [dc.code]
-    assert len(basket.get_final_lines()) == 3  # now basket has codes so they will be applied too
-    assert OrderLineType.DISCOUNT in [l.type for l in basket.get_final_lines()]
+    assert cart.codes == [dc.code]
+    assert len(cart.get_final_lines()) == 3  # now cart has codes so they will be applied too
+    assert OrderLineType.DISCOUNT in [l.type for l in cart.get_final_lines()]
 
-    basket.status = status
+    cart.status = status
     creator = OrderCreator(request)
-    order = creator.create_order(basket)
+    order = creator.create_order(cart)
     assert CouponUsage.objects.filter(order=order).count() == 1
     assert CouponUsage.objects.filter(order=order, coupon__code=dc.code).count() == 1

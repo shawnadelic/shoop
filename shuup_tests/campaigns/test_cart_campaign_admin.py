@@ -11,26 +11,26 @@ import pytest
 from django.test import override_settings
 
 from shuup.apps.provides import override_provides
-from shuup.campaigns.admin_module.form_parts import BasketBaseFormPart
-from shuup.campaigns.admin_module.views import BasketCampaignEditView
-from shuup.campaigns.models.campaigns import BasketCampaign
-from shuup.campaigns.models.basket_conditions import BasketTotalProductAmountCondition
-from shuup.campaigns.models.basket_effects import BasketDiscountAmount
+from shuup.campaigns.admin_module.form_parts import CartBaseFormPart
+from shuup.campaigns.admin_module.views import CartCampaignEditView
+from shuup.campaigns.models.campaigns import CartCampaign
+from shuup.campaigns.models.cart_conditions import CartTotalProductAmountCondition
+from shuup.campaigns.models.cart_effects import CartDiscountAmount
 from shuup.testing.factories import get_default_shop
 from shuup.testing.utils import apply_request_middleware
 
 
 DEFAULT_CONDITION_FORMS = [
-    "shuup.campaigns.admin_module.forms:BasketTotalProductAmountConditionForm",
-    "shuup.campaigns.admin_module.forms:BasketTotalAmountConditionForm",
-    "shuup.campaigns.admin_module.forms:ProductsInBasketConditionForm",
-    "shuup.campaigns.admin_module.forms:ContactGroupBasketConditionForm",
-    "shuup.campaigns.admin_module.forms:ContactBasketConditionForm",
+    "shuup.campaigns.admin_module.forms:CartTotalProductAmountConditionForm",
+    "shuup.campaigns.admin_module.forms:CartTotalAmountConditionForm",
+    "shuup.campaigns.admin_module.forms:ProductsInCartConditionForm",
+    "shuup.campaigns.admin_module.forms:ContactGroupCartConditionForm",
+    "shuup.campaigns.admin_module.forms:ContactCartConditionForm",
 ]
 
 DEFAULT_DISCOUNT_EFFECT_FORMS = [
-    "shuup.campaigns.admin_module.forms:BasketDiscountAmountForm",
-    "shuup.campaigns.admin_module.forms:BasketDiscountPercentageForm",
+    "shuup.campaigns.admin_module.forms:CartDiscountAmountForm",
+    "shuup.campaigns.admin_module.forms:CartDiscountPercentageForm",
 ]
 
 DEFAULT_LINE_EFFECT_FORMS = [
@@ -39,9 +39,9 @@ DEFAULT_LINE_EFFECT_FORMS = [
 
 
 def get_form_parts(request, view, object):
-    with override_provides("campaign_basket_condition", DEFAULT_CONDITION_FORMS):
-        with override_provides("campaign_basket_discount_effect_form", DEFAULT_DISCOUNT_EFFECT_FORMS):
-            with override_provides("campaign_basket_line_effect_form", DEFAULT_LINE_EFFECT_FORMS):
+    with override_provides("campaign_cart_condition", DEFAULT_CONDITION_FORMS):
+        with override_provides("campaign_cart_discount_effect_form", DEFAULT_DISCOUNT_EFFECT_FORMS):
+            with override_provides("campaign_cart_line_effect_form", DEFAULT_LINE_EFFECT_FORMS):
                 initialized_view = view(request=request, kwargs={"pk": object.pk})
                 return initialized_view.get_form_parts(object)
 
@@ -49,9 +49,9 @@ def get_form_parts(request, view, object):
 @pytest.mark.django_db
 def test_admin_campaign_edit_view_works(rf, admin_user):
     shop = get_default_shop()
-    view_func = BasketCampaignEditView.as_view()
+    view_func = CartCampaignEditView.as_view()
     request = apply_request_middleware(rf.get("/"), user=admin_user)
-    campaign = BasketCampaign.objects.create(name="test campaign", active=True, shop=shop)
+    campaign = CartCampaign.objects.create(name="test campaign", active=True, shop=shop)
     response = view_func(request, pk=campaign.pk)
     assert campaign.name in response.rendered_content
 
@@ -61,19 +61,19 @@ def test_admin_campaign_edit_view_works(rf, admin_user):
 
 @pytest.mark.django_db
 def test_campaign_new_mode_view_formsets(rf, admin_user):
-    view = BasketCampaignEditView
+    view = CartCampaignEditView
     get_default_shop()
     request = apply_request_middleware(rf.get("/"), user=admin_user)
     form_parts = get_form_parts(request, view, view.model())
     assert len(form_parts) == 1
-    assert issubclass(form_parts[0].__class__, BasketBaseFormPart)
+    assert issubclass(form_parts[0].__class__, CartBaseFormPart)
 
 
 @pytest.mark.django_db
 def test_campaign_edit_view_formsets(rf, admin_user):
-    view = BasketCampaignEditView
+    view = CartCampaignEditView
     shop = get_default_shop()
-    object = BasketCampaign.objects.create(name="test campaign", active=True, shop=shop)
+    object = CartCampaign.objects.create(name="test campaign", active=True, shop=shop)
     request = apply_request_middleware(rf.get("/"), user=admin_user)
     form_parts = get_form_parts(request, view, object)
     # form parts should include forms plus one for the base form
@@ -87,19 +87,19 @@ def test_campaign_creation(rf, admin_user):
     a language.
     """
     with override_settings(LANGUAGES=[("en", "en")]):
-        view = BasketCampaignEditView.as_view()
+        view = CartCampaignEditView.as_view()
         data = {
             "base-name": "Test Campaign",
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!"
+            "base-cart_line_text": "Test campaign activated!"
         }
-        campaigns_before = BasketCampaign.objects.count()
+        campaigns_before = CartCampaign.objects.count()
         request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
         response = view(request, pk=None)
         assert response.status_code in [200, 302]
-        assert BasketCampaign.objects.count() == (campaigns_before + 1)
+        assert CartCampaign.objects.count() == (campaigns_before + 1)
 
 
 @pytest.mark.django_db
@@ -110,9 +110,9 @@ def test_campaign_edit_save(rf, admin_user):
     """
     with override_settings(LANGUAGES=[("en", "en")]):
         shop = get_default_shop()
-        object = BasketCampaign.objects.create(name="test campaign", active=True, shop=shop)
+        object = CartCampaign.objects.create(name="test campaign", active=True, shop=shop)
         object.save()
-        view = BasketCampaignEditView.as_view()
+        view = CartCampaignEditView.as_view()
         new_name = "Test Campaign"
         assert object.name != new_name
         data = {
@@ -120,19 +120,19 @@ def test_campaign_edit_save(rf, admin_user):
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!"
+            "base-cart_line_text": "Test campaign activated!"
         }
-        methods_before = BasketCampaign.objects.count()
+        methods_before = CartCampaign.objects.count()
         # Conditions and effects is tested separately
-        with override_provides("campaign_basket_condition", []):
-            with override_provides("campaign_basket_discount_effect_form", []):
-                with override_provides("campaign_basket_line_effect_form", []):
+        with override_provides("campaign_cart_condition", []):
+            with override_provides("campaign_cart_discount_effect_form", []):
+                with override_provides("campaign_cart_line_effect_form", []):
                     request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
                     response = view(request, pk=object.pk)
                     assert response.status_code in [200, 302]
 
-        assert BasketCampaign.objects.count() == methods_before
-        assert BasketCampaign.objects.get(pk=object.pk).name == new_name
+        assert CartCampaign.objects.count() == methods_before
+        assert CartCampaign.objects.get(pk=object.pk).name == new_name
 
 
 @pytest.mark.django_db
@@ -144,23 +144,23 @@ def test_rules_and_effects(rf, admin_user):
     get_default_shop()
     with override_settings(LANGUAGES=[("en", "en")]):
         shop = get_default_shop()
-        object = BasketCampaign.objects.create(name="test campaign", active=True, shop=shop)
+        object = CartCampaign.objects.create(name="test campaign", active=True, shop=shop)
         assert object.conditions.count() == 0
         assert object.discount_effects.count() == 0
-        view = BasketCampaignEditView.as_view()
+        view = CartCampaignEditView.as_view()
         data = {
             "base-name": "test campaign",
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!"
+            "base-cart_line_text": "Test campaign activated!"
         }
         with override_provides(
-                "campaign_basket_condition", ["shuup.campaigns.admin_module.forms:BasketTotalProductAmountConditionForm"]):
+                "campaign_cart_condition", ["shuup.campaigns.admin_module.forms:CartTotalProductAmountConditionForm"]):
             with override_provides(
-                    "campaign_basket_discount_effect_form", ["shuup.campaigns.admin_module.forms:BasketDiscountAmountForm"]):
-                with override_provides("campaign_basket_line_effect_form", []):
-                    data.update(get_products_in_basket_data())
+                    "campaign_cart_discount_effect_form", ["shuup.campaigns.admin_module.forms:CartDiscountAmountForm"]):
+                with override_provides("campaign_cart_line_effect_form", []):
+                    data.update(get_products_in_cart_data())
                     data.update(get_free_product_data(object))
                     request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
                     view(request, pk=object.pk)
@@ -170,8 +170,8 @@ def test_rules_and_effects(rf, admin_user):
         assert object.discount_effects.count() == 1
 
 
-def get_products_in_basket_data():
-    rule_name = BasketTotalProductAmountCondition.__name__.lower()
+def get_products_in_cart_data():
+    rule_name = CartTotalProductAmountCondition.__name__.lower()
     data = {
         "conditions_%s-MAX_NUM_FORMS" % rule_name: 2,
         "conditions_%s-MIN_NUM_FORMS" % rule_name: 0,
@@ -183,7 +183,7 @@ def get_products_in_basket_data():
 
 
 def get_free_product_data(object):
-    effect_name = BasketDiscountAmount.__name__.lower()
+    effect_name = CartDiscountAmount.__name__.lower()
     data = {
         "effects_%s-MAX_NUM_FORMS" % effect_name: 2,
         "effects_%s-MIN_NUM_FORMS" % effect_name: 0,

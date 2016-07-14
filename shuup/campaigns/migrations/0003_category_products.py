@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import enumfields.fields
 import shuup.core.fields
-import shuup.campaigns.models.basket_conditions
+import shuup.campaigns.models.cart_conditions
 
 
 class Migration(migrations.Migration):
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='CategoryProductsBasketCondition',
             fields=[
                 ('basketcondition_ptr', models.OneToOneField(serialize=False, auto_created=True, primary_key=True, to='campaigns.BasketCondition', parent_link=True)),
-                ('operator', enumfields.fields.EnumIntegerField(verbose_name='operator', enum=shuup.campaigns.models.basket_conditions.ComparisonOperator, default=1)),
+                ('operator', enumfields.fields.EnumIntegerField(verbose_name='operator', enum=shuup.campaigns.models.cart_conditions.ComparisonOperator, default=1)),
                 ('quantity', models.PositiveIntegerField(verbose_name='quantity', default=1)),
                 ('category', models.ForeignKey(blank=True, to='shuup.Category', verbose_name='category')),
             ],

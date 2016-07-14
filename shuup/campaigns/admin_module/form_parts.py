@@ -12,15 +12,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from shuup.admin.form_part import FormPart, TemplatedFormDef
 from shuup.campaigns.admin_module.forms import (
-    BasketCampaignForm, CatalogCampaignForm
+    CartCampaignForm, CatalogCampaignForm
 )
 from shuup.campaigns.models import ContactGroupSalesRange
 from shuup.core.models import Shop, ShopStatus
 from shuup.core.models._contacts import PROTECTED_CONTACT_GROUP_IDENTIFIERS
 
 from .form_sets import (
-    BasketConditionsFormSet, BasketDiscountEffectsFormSet,
-    BasketLineEffectsFormSet, CatalogConditionsFormSet, CatalogEffectsFormSet,
+    CartConditionsFormSet, CartDiscountEffectsFormSet,
+    CartLineEffectsFormSet, CatalogConditionsFormSet, CatalogEffectsFormSet,
     CatalogFiltersFormSet
 )
 
@@ -100,8 +100,8 @@ class CatalogBaseFormPart(CampaignBaseFormPart):
     form = CatalogCampaignForm
 
 
-class BasketBaseFormPart(CampaignBaseFormPart):
-    form = BasketCampaignForm
+class CartBaseFormPart(CampaignBaseFormPart):
+    form = CartCampaignForm
 
 
 class BaseFormPart(FormPart):
@@ -133,16 +133,16 @@ class BaseFormPart(FormPart):
                 self.object.filters.add(component)
 
 
-class BasketConditionsFormPart(BaseFormPart):
-    formset = BasketConditionsFormSet
+class CartConditionsFormPart(BaseFormPart):
+    formset = CartConditionsFormSet
 
 
-class BasketDiscountEffectsFormPart(BaseFormPart):
-    formset = BasketDiscountEffectsFormSet
+class CartDiscountEffectsFormPart(BaseFormPart):
+    formset = CartDiscountEffectsFormSet
 
 
-class BasketLineEffectsFormPart(BaseFormPart):
-    formset = BasketLineEffectsFormSet
+class CartLineEffectsFormPart(BaseFormPart):
+    formset = CartLineEffectsFormSet
 
 
 class CatalogConditionsFormPart(BaseFormPart):

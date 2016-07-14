@@ -7,8 +7,8 @@
 """
 Template tags for displaying prices correctly.
 
-Prefer these filters for rendering prices of products and basket lines
-or total price of basket, since the will take price display options of
+Prefer these filters for rendering prices of products and cart lines
+or total price of cart, since the will take price display options of
 current template context into account (see `PriceDisplayOptions`).
 Especially, they convert prices to correct taxness.
 
@@ -24,7 +24,7 @@ from shuup.core.utils.price_display import (
     PricePropertyFilter, PriceRangeDisplayFilter, TotalPriceDisplayFilter
 )
 
-# Filters for Product, SourceLine, BasketLine, OrderLine, Service
+# Filters for Product, SourceLine, CartLine, OrderLine, Service
 
 price = PriceDisplayFilter('price')
 base_price = PriceDisplayFilter('base_price')
@@ -42,7 +42,7 @@ tax_rate = PricePropertyFilter('tax_rate')
 
 price_range = PriceRangeDisplayFilter('price_range')
 
-# Filters for OrderSource, BaseBasket, Order
+# Filters for OrderSource, BaseCart, Order
 
 total_price = TotalPriceDisplayFilter('total_price')
 

@@ -13,14 +13,14 @@ from shuup.core.fields import MoneyValueField
 from shuup.core.models import PolymorphicShuupModel
 
 
-class BasketDiscountEffect(PolymorphicShuupModel):
+class CartDiscountEffect(PolymorphicShuupModel):
     identifier = None
     model = None
     admin_form_class = None
 
-    campaign = models.ForeignKey("BasketCampaign", related_name="discount_effects", verbose_name=_("campaign"))
+    campaign = models.ForeignKey("CartCampaign", related_name="discount_effects", verbose_name=_("campaign"))
 
-    def apply_for_basket(self, order_source):
+    def apply_for_cart(self, order_source):
         """
         Applies the effect based on given `order_source`
 
@@ -30,7 +30,7 @@ class BasketDiscountEffect(PolymorphicShuupModel):
         raise NotImplementedError("Not implemented!")
 
 
-class BasketDiscountAmount(BasketDiscountEffect):
+class CartDiscountAmount(CartDiscountEffect):
     identifier = "discount_amount_effect"
     name = _("Discount amount value")
 
@@ -51,11 +51,11 @@ class BasketDiscountAmount(BasketDiscountEffect):
     def value(self, value):
         self.discount_amount = value
 
-    def apply_for_basket(self, order_source):
+    def apply_for_cart(self, order_source):
         return order_source.create_price(self.value)
 
 
-class BasketDiscountPercentage(BasketDiscountEffect):
+class CartDiscountPercentage(CartDiscountEffect):
     identifier = "discount_percentage_effect"
     name = _("Discount amount percentage")
     admin_form_class = PercentageField
@@ -77,5 +77,5 @@ class BasketDiscountPercentage(BasketDiscountEffect):
     def value(self, value):
         self.discount_percentage = value
 
-    def apply_for_basket(self, order_source):
+    def apply_for_cart(self, order_source):
         return (order_source.total_price_of_products * self.value)

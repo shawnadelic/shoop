@@ -133,7 +133,7 @@ def _is_in_range(value, min_value, max_value):
 class WeightBasedPricingBehaviorComponent(ServiceBehaviorComponent):
     name = _("Weight-based pricing")
     help_text = _(
-        "Define price based on basket weight. "
+        "Define price based on cart weight. "
         "Range minimums is counted in range only as zero.")
 
     def _get_matching_range_with_lowest_price(self, source):

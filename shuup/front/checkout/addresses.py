@@ -67,7 +67,7 @@ class AddressesPhase(CheckoutPhaseViewMixin, FormView):
 
     def get_initial(self):
         initial = super(AddressesPhase, self).get_initial()
-        customer = self.request.basket.customer
+        customer = self.request.cart.customer
         for address_kind in self.address_kinds:
             if self.storage.get(address_kind):
                 address = self.storage.get(address_kind)
@@ -100,15 +100,15 @@ class AddressesPhase(CheckoutPhaseViewMixin, FormView):
             self.storage["company"] = None
         return super(AddressesPhase, self).form_valid(form)
 
-    def _process_addresses(self, basket):
+    def _process_addresses(self, cart):
         for kind in self.address_kinds:
-            setattr(basket, "%s_address" % kind, self.storage.get(kind))
+            setattr(cart, "%s_address" % kind, self.storage.get(kind))
 
     def process(self):
-        basket = self.request.basket
-        self._process_addresses(basket)
+        cart = self.request.cart
+        self._process_addresses(cart)
         if self.storage.get("company"):
-            basket.customer = self.storage.get("company")
-            for address in (basket.shipping_address, basket.billing_address):
-                address.company_name = basket.customer.name
-                address.tax_number = basket.customer.tax_number
+            cart.customer = self.storage.get("company")
+            for address in (cart.shipping_address, cart.billing_address):
+                address.company_name = cart.customer.name
+                address.tax_number = cart.customer.tax_number

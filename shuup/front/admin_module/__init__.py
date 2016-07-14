@@ -18,7 +18,7 @@ from shuup.admin.currencybound import CurrencyBound
 from shuup.admin.dashboard import DashboardMoneyBlock
 from shuup.admin.utils.permissions import get_default_model_permissions
 from shuup.admin.utils.urls import admin_url
-from shuup.front.models.stored_basket import StoredBasket
+from shuup.front.models.stored_cart import StoredCart
 
 
 def get_unfinalized_cart_block(currency, days=14):
@@ -26,12 +26,12 @@ def get_unfinalized_cart_block(currency, days=14):
 
     early_cutoff = now() - datetime.timedelta(days=days)
     # The `hours` value for `late_cutoff` should maybe be tunable somehow.
-    # Either way, we're currently considering baskets abandoned if they've been
+    # Either way, we're currently considering carts abandoned if they've been
     # unupdated for two hours.
     late_cutoff = now() - datetime.timedelta(hours=2)
 
     data = (
-        StoredBasket.objects.filter(currency=currency)
+        StoredCart.objects.filter(currency=currency)
         .filter(updated_on__range=(early_cutoff, late_cutoff), product_count__gte=0)
         .exclude(deleted=True, finished=True)
         .aggregate(count=Count("id"), sum=Sum("taxful_total_price_value"))
@@ -67,7 +67,7 @@ class CartAdminModule(CurrencyBound, AdminModule):
                 "^carts/$",
                 "shuup.front.admin_module.carts.views.CartListView",
                 name="cart.list",
-                permissions=get_default_model_permissions(StoredBasket),
+                permissions=get_default_model_permissions(StoredCart),
             ),
         ]
 
@@ -75,7 +75,7 @@ class CartAdminModule(CurrencyBound, AdminModule):
         return {self.name: "fa fa-cart"}
 
     def get_required_permissions(self):
-        return get_default_model_permissions(StoredBasket)
+        return get_default_model_permissions(StoredCart)
 
     def get_menu_entries(self, request):
         category = _("Carts")

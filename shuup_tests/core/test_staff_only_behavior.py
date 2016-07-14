@@ -11,7 +11,7 @@ from shuup.core.models import StaffOnlyBehaviorComponent
 from shuup.testing.factories import (
     get_default_payment_method, get_default_shop
 )
-from shuup_tests.utils.basketish_order_source import BasketishOrderSource
+from shuup_tests.utils.cartish_order_source import CartishOrderSource
 from shuup_tests.utils.fixtures import regular_user
 
 regular_user = regular_user # noqa
@@ -22,7 +22,7 @@ def test_staff_only_behavior(admin_user, regular_user):
     payment_method = get_default_payment_method()
     component = StaffOnlyBehaviorComponent.objects.create()
     payment_method.behavior_components.add(component)
-    source = BasketishOrderSource(get_default_shop())
+    source = CartishOrderSource(get_default_shop())
 
     # anonymous user
     unavailability_reasons = list(payment_method.get_unavailability_reasons(source))

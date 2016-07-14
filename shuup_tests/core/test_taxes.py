@@ -15,7 +15,7 @@ from shuup.core.order_creator import TaxesNotCalculated
 from shuup.testing.factories import (
     get_default_product, get_default_shop, get_default_supplier,
 )
-from shuup_tests.utils.basketish_order_source import BasketishOrderSource
+from shuup_tests.utils.cartish_order_source import CartishOrderSource
 
 
 @pytest.mark.django_db
@@ -33,7 +33,7 @@ def test_customertaxgroup():
 
 
 def get_source():
-    source = BasketishOrderSource(get_default_shop())
+    source = CartishOrderSource(get_default_shop())
     source.add_line(
         type=OrderLineType.PRODUCT,
         product=get_default_product(),

@@ -4,20 +4,20 @@
 #
 # This source code is licensed under the AGPLv3 license found in the
 # LICENSE file in the root directory of this source tree.
-from .basket_conditions import BasketCondition
-from .basket_effects import BasketDiscountEffect
-from .basket_line_effects import BasketLineEffect
-from .campaigns import BasketCampaign, Campaign, CatalogCampaign, Coupon
+from .cart_conditions import CartCondition
+from .cart_effects import CartDiscountEffect
+from .cart_line_effects import CartLineEffect
+from .campaigns import CartCampaign, Campaign, CatalogCampaign, Coupon
 from .catalog_filters import CatalogFilter
 from .contact_group_sales_ranges import ContactGroupSalesRange
 from .context_conditions import ContextCondition
 from .product_effects import ProductDiscountEffect
 
 __all__ = [
-    'BasketLineEffect',
-    'BasketCampaign',
-    'BasketDiscountEffect',
-    'BasketCondition',
+    'CartLineEffect',
+    'CartCampaign',
+    'CartDiscountEffect',
+    'CartCondition',
     'Campaign',
     'ProductDiscountEffect',
     'CatalogCampaign',

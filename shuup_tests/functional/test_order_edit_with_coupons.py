@@ -12,13 +12,13 @@ import json
 import pytest
 
 from shuup.admin.modules.orders.views.edit import OrderEditView
-from shuup.campaigns.models import Coupon, BasketCampaign
-from shuup.campaigns.models.basket_conditions import BasketTotalProductAmountCondition
-from shuup.campaigns.models.basket_effects import BasketDiscountAmount
+from shuup.campaigns.models import Coupon, CartCampaign
+from shuup.campaigns.models.cart_conditions import CartTotalProductAmountCondition
+from shuup.campaigns.models.cart_effects import CartDiscountAmount
 from shuup.core.order_creator import OrderCreator
 from shuup.core.models import Order, OrderLineType, Tax, TaxClass
 from shuup.default_tax.models import TaxRule
-from shuup.front.basket import get_basket
+from shuup.front.cart import get_cart
 from shuup.testing.factories import (
    create_product, get_payment_method, get_shipping_method, get_default_supplier, get_initial_order_status, create_random_person, UserFactory
 )
@@ -82,13 +82,13 @@ def test_campaign_with_non_active_coupon(rf):
 
 def _get_order_with_coupon(request, initial_status, condition_product_count=1):
     shop = request.shop
-    basket = get_basket(request)
+    cart = get_cart(request)
     supplier = get_default_supplier()
     product = create_product(printable_gibberish(), shop=shop, supplier=supplier, default_price="50")
-    basket.add_product(supplier=supplier, shop=shop, product=product, quantity=1)
+    cart.add_product(supplier=supplier, shop=shop, product=product, quantity=1)
 
     dc = Coupon.objects.create(code="TEST", active=True)
-    campaign = BasketCampaign.objects.create(
+    campaign = CartCampaign.objects.create(
         shop=shop,
         name="test",
         public_name="test",
@@ -96,17 +96,17 @@ def _get_order_with_coupon(request, initial_status, condition_product_count=1):
         active=True
     )
 
-    BasketDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
+    CartDiscountAmount.objects.create(discount_amount=shop.create_price("20"), campaign=campaign)
 
-    rule = BasketTotalProductAmountCondition.objects.create(value=1)
+    rule = CartTotalProductAmountCondition.objects.create(value=1)
     campaign.conditions.add(rule)
     campaign.save()
-    basket.add_code(dc.code)
-    basket.save()
+    cart.add_code(dc.code)
+    cart.save()
 
-    basket.status = initial_status
+    cart.status = initial_status
     creator = OrderCreator(request)
-    order = creator.create_order(basket)
+    order = creator.create_order(cart)
     assert order.lines.count() == 2
     assert OrderLineType.DISCOUNT in [l.type for l in order.lines.all()]
     return order

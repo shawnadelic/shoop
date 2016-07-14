@@ -7,17 +7,17 @@
 # LICENSE file in the root directory of this source tree.
 
 from ._edit import (
-    BasketCampaignEditView, CatalogCampaignEditView, CouponEditView
+    CartCampaignEditView, CatalogCampaignEditView, CouponEditView
 )
 from ._list import (
-    BasketCampaignListView, CatalogCampaignListView, CouponListView
+    CartCampaignListView, CatalogCampaignListView, CouponListView
 )
 
 __all__ = [
     "CatalogCampaignEditView",
     "CatalogCampaignListView",
-    "BasketCampaignEditView",
-    "BasketCampaignListView",
+    "CartCampaignEditView",
+    "CartCampaignListView",
     "CouponEditView",
     "CouponListView"
 ]

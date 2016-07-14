@@ -16,12 +16,12 @@ from shuup.core.models import (
 from shuup.core.order_creator._source import LineSource
 
 
-class BasketLineEffect(PolymorphicShuupModel):
+class CartLineEffect(PolymorphicShuupModel):
     identifier = None
     model = None
     admin_form_class = None
 
-    campaign = models.ForeignKey("BasketCampaign", related_name='line_effects', verbose_name=_("campaign"))
+    campaign = models.ForeignKey("CartCampaign", related_name='line_effects', verbose_name=_("campaign"))
 
     def get_discount_lines(self, order_source, original_lines):
         """
@@ -33,7 +33,7 @@ class BasketLineEffect(PolymorphicShuupModel):
         raise NotImplementedError("Not implemented!")
 
 
-class FreeProductLine(BasketLineEffect):
+class FreeProductLine(CartLineEffect):
     identifier = "free_product_line_effect"
     model = Product
     name = _("Free Product(s)")
@@ -78,7 +78,7 @@ class FreeProductLine(BasketLineEffect):
         return lines
 
 
-class DiscountFromProduct(BasketLineEffect):
+class DiscountFromProduct(CartLineEffect):
     identifier = "discount_from_product_line_effect"
     model = Product
     name = _("Discount from Product")
@@ -111,7 +111,7 @@ class DiscountFromProduct(BasketLineEffect):
         return []
 
 
-class DiscountFromCategoryProducts(BasketLineEffect):
+class DiscountFromCategoryProducts(CartLineEffect):
     identifier = "discount_from_category_products_line_effect"
     model = Category
     name = _("Discount from Category products")
@@ -130,7 +130,7 @@ class DiscountFromCategoryProducts(BasketLineEffect):
     def description(self):
         return _(
             'Select discount amount and category. '
-            'Please note that the discount will be given to all matching products in basket.')
+            'Please note that the discount will be given to all matching products in cart.')
 
     def get_discount_lines(self, order_source, original_lines):
         if not (self.discount_percentage or self.discount_amount):

@@ -12,7 +12,7 @@ from shuup.admin.toolbar import NewActionButton, Toolbar
 from shuup.admin.utils.picotable import ChoicesFilter, Column, TextFilter
 from shuup.admin.utils.views import PicotableListView
 from shuup.campaigns.models.campaigns import (
-    BasketCampaign, CatalogCampaign, Coupon
+    CartCampaign, CatalogCampaign, Coupon
 )
 from shuup.utils.i18n import get_current_babel_locale
 
@@ -81,8 +81,8 @@ class CatalogCampaignListView(CampaignListView):
         return context
 
 
-class BasketCampaignListView(CampaignListView):
-    model = BasketCampaign
+class CartCampaignListView(CampaignListView):
+    model = CartCampaign
 
     def __init__(self, **kwargs):
         new_columns = [
@@ -90,12 +90,12 @@ class BasketCampaignListView(CampaignListView):
             Column("coupon", _("Discount Code")),
         ]
         self.add_columns("name", new_columns)
-        super(BasketCampaignListView, self).__init__(**kwargs)
+        super(CartCampaignListView, self).__init__(**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CampaignListView, self).get_context_data(**kwargs)
         context["toolbar"] = Toolbar([
-            NewActionButton("shuup_admin:basket_campaigns.new", text=_("Create new Basket Campaign")),
+            NewActionButton("shuup_admin:cart_campaigns.new", text=_("Create new Cart Campaign")),
         ])
         return context
 

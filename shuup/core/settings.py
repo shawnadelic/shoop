@@ -74,7 +74,7 @@ SHUUP_DISCOUNT_MODULES = ["catalog_campaigns"]
 #: List of identifiers of order source modifier modules.
 #:
 #: See `shuup.core.order_creator.OrderSourceModifierModule` for details.
-SHUUP_ORDER_SOURCE_MODIFIER_MODULES = ["basket_campaigns"]
+SHUUP_ORDER_SOURCE_MODIFIER_MODULES = ["cart_campaigns"]
 
 #: The identifier of the tax module to use for determining taxes of products and order lines.
 #:

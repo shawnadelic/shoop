@@ -18,12 +18,12 @@ from shuup.admin.utils.picotable import (
 )
 from shuup.admin.utils.views import PicotableListView
 from shuup.core.models import Shop
-from shuup.front.models import StoredBasket
+from shuup.front.models import StoredCart
 from shuup.utils.i18n import format_money, get_locally_formatted_datetime
 
 
 class CartListView(PicotableListView):
-    model = StoredBasket
+    model = StoredCart
     columns = [
         Column("created_on", _(u"Created on"), display="format_created_date", filter_config=DateRangeFilter()),
         Column("updated_on", _(u"Last updated on"), display="format_updated_date", filter_config=DateRangeFilter()),

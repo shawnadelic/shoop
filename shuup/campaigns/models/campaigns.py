@@ -20,8 +20,8 @@ from shuup.campaigns.consts import (
     CAMPAIGNS_CACHE_NAMESPACE, CATALOG_FILTER_CACHE_NAMESPACE,
     CONTEXT_CONDITION_CACHE_NAMESPACE
 )
-from shuup.campaigns.models.basket_conditions import (
-    CategoryProductsBasketCondition, ProductsInBasketCondition
+from shuup.campaigns.models.cart_conditions import (
+    CategoryProductsCartCondition, ProductsInCartCondition
 )
 from shuup.campaigns.utils import get_product_ids_and_quantities
 from shuup.core import cache
@@ -86,7 +86,7 @@ class Campaign(MoneyPropped, TranslatableModel):
 
     @property
     def type(self):
-        return CampaignType.BASKET if isinstance(self, BasketCampaign) else CampaignType.CATALOG
+        return CampaignType.BASKET if isinstance(self, CartCampaign) else CampaignType.CATALOG
 
 
 class CatalogCampaign(Campaign):
@@ -164,13 +164,13 @@ class CatalogCampaign(Campaign):
         return matching
 
 
-class BasketCampaign(Campaign):
-    admin_url_suffix = "basket_campaigns"
+class CartCampaign(Campaign):
+    admin_url_suffix = "cart_campaigns"
 
-    basket_line_text = models.CharField(
-        max_length=120, verbose_name=_("basket line text"), help_text=_("This text will be shown in basket."))
+    cart_line_text = models.CharField(
+        max_length=120, verbose_name=_("cart line text"), help_text=_("This text will be shown in cart."))
 
-    conditions = models.ManyToManyField('BasketCondition', blank=True, related_name='campaign')
+    conditions = models.ManyToManyField('CartCondition', blank=True, related_name='campaign')
     coupon = models.OneToOneField('Coupon', null=True, blank=True, related_name='campaign', verbose_name=_("coupon"))
 
     translations = TranslatedFields(
@@ -178,49 +178,49 @@ class BasketCampaign(Campaign):
     )
 
     def __str__(self):
-        return force_text(_("Basket Campaign: %(name)s" % dict(name=self.name)))
+        return force_text(_("Cart Campaign: %(name)s" % dict(name=self.name)))
 
     @classmethod
-    def get_matching(cls, basket, lines):
+    def get_matching(cls, cart, lines):
         matching = []
         exclude_condition_ids = set()
-        product_id_to_qty = get_product_ids_and_quantities(basket)
+        product_id_to_qty = get_product_ids_and_quantities(cart)
 
-        # Get ProductsInBasketCondition's that can't match with the basket
-        products_in_basket_conditions_to_check = set(
-            ProductsInBasketCondition.objects.filter(
+        # Get ProductsInCartCondition's that can't match with the cart
+        products_in_cart_conditions_to_check = set(
+            ProductsInCartCondition.objects.filter(
                 products__id__in=product_id_to_qty.keys()
             ).values_list("id", flat=True)
         )
         exclude_condition_ids |= set(
-            ProductsInBasketCondition.objects.exclude(
-                id__in=products_in_basket_conditions_to_check
+            ProductsInCartCondition.objects.exclude(
+                id__in=products_in_cart_conditions_to_check
             ).values_list("id", flat=True)
         )
 
-        # Get CategoryProductsBasketCondition's that can't match with the basket
-        category_products_in_basket_to_check = set(
-            CategoryProductsBasketCondition.objects.filter(
+        # Get CategoryProductsCartCondition's that can't match with the cart
+        category_products_in_cart_to_check = set(
+            CategoryProductsCartCondition.objects.filter(
                 category__shop_products__product_id__in=product_id_to_qty.keys()
             ).values_list("id", flat=True)
         )
         exclude_condition_ids |= set(
-            CategoryProductsBasketCondition.objects.exclude(
-                id__in=category_products_in_basket_to_check
+            CategoryProductsCartCondition.objects.exclude(
+                id__in=category_products_in_cart_to_check
             ).values_list("id", flat=True)
         )
 
-        queryset = cls.objects.filter(active=True, shop=basket.shop)
+        queryset = cls.objects.filter(active=True, shop=cart.shop)
         if exclude_condition_ids:
             queryset = queryset.exclude(conditions__id__in=exclude_condition_ids)
         for campaign in queryset.prefetch_related("conditions"):
-            if campaign.rules_match(basket, lines):
+            if campaign.rules_match(cart, lines):
                 matching.append(campaign)
         return matching
 
-    def rules_match(self, basket, lines):
+    def rules_match(self, cart, lines):
         """
-        Check if basket rules match.
+        Check if cart rules match.
 
         They will not match if
         1) The campaign is not active
@@ -231,11 +231,11 @@ class BasketCampaign(Campaign):
         if not self.is_available():
             return False
 
-        if self.coupon and not (self.coupon.active and self.coupon.code in basket.codes):
+        if self.coupon and not (self.coupon.active and self.coupon.code in cart.codes):
             return False
 
         for rule in self.conditions.all():
-            if not rule.matches(basket, lines):
+            if not rule.matches(cart, lines):
                 return False
         return True
 
@@ -302,7 +302,7 @@ class Coupon(models.Model):
 
     @property
     def attached(self):
-        return BasketCampaign.objects.filter(coupon=self).exists()
+        return CartCampaign.objects.filter(coupon=self).exists()
 
     def attach_to_campaign(self, campaign):
         if not self.attached:

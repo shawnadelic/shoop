@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import shuup.utils.properties
 from django.conf import settings
-import shuup.front.models.stored_basket
+import shuup.front.models.stored_cart
 import shuup.core.fields
 
 
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='StoredBasket',
             fields=[
                 ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
-                ('key', models.CharField(verbose_name='key', max_length=32, default=shuup.front.models.stored_basket.generate_key)),
+                ('key', models.CharField(verbose_name='key', max_length=32, default=shuup.front.models.stored_cart.generate_key)),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on', db_index=True)),
                 ('updated_on', models.DateTimeField(verbose_name='updated on', auto_now=True, db_index=True)),
                 ('persistent', models.BooleanField(verbose_name='persistent', db_index=True, default=False)),

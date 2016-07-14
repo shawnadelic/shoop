@@ -15,12 +15,12 @@ from shuup.testing.factories import (
     get_initial_order_status, get_default_payment_method, get_default_shipping_method,
     get_default_shop, get_default_product, get_default_supplier
 )
-from shuup_tests.utils.basketish_order_source import BasketishOrderSource
+from shuup_tests.utils.cartish_order_source import CartishOrderSource
 
 
 def get_order_and_source(admin_user):
     # create original source to tamper with
-    source = BasketishOrderSource(get_default_shop())
+    source = CartishOrderSource(get_default_shop())
     source.status = get_initial_order_status()
     source.billing_address = MutableAddress.objects.create(name="Original Billing")
     source.shipping_address = MutableAddress.objects.create(name="Original Shipping")

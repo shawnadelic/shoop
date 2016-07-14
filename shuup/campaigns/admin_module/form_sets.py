@@ -10,7 +10,7 @@ from django.conf import settings
 from django.forms import BaseModelFormSet
 
 from shuup.campaigns.models import (
-    BasketCondition, BasketDiscountEffect, BasketLineEffect, CatalogFilter,
+    CartCondition, CartDiscountEffect, CartLineEffect, CatalogFilter,
     ContextCondition, ProductDiscountEffect
 )
 from shuup.utils.multilanguage_model_form import TranslatableModelForm
@@ -51,8 +51,8 @@ class BaseFormset(BaseModelFormSet):
         return self.form_class(**kwargs)
 
 
-class BasketConditionsFormSet(BaseFormset):
-    model = BasketCondition
+class CartConditionsFormSet(BaseFormset):
+    model = CartCondition
 
     def get_queryset(self):
         return self.owner.conditions.instance_of(self._get_actual_model())
@@ -64,15 +64,15 @@ class EffectsFormset(BaseFormset):
         return super(EffectsFormset, self).form(**kwargs)
 
 
-class BasketDiscountEffectsFormSet(EffectsFormset):
-    model = BasketDiscountEffect
+class CartDiscountEffectsFormSet(EffectsFormset):
+    model = CartDiscountEffect
 
     def get_queryset(self):
         return self.owner.discount_effects.instance_of(self._get_actual_model())
 
 
-class BasketLineEffectsFormSet(EffectsFormset):
-    model = BasketLineEffect
+class CartLineEffectsFormSet(EffectsFormset):
+    model = CartLineEffect
 
     def get_queryset(self):
         return self.owner.line_effects.instance_of(self._get_actual_model())

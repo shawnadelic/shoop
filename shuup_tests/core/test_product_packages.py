@@ -17,7 +17,7 @@ from shuup.testing.factories import (
     create_product, get_default_shop, get_default_supplier,
     get_default_tax_class, get_initial_order_status
 )
-from shuup_tests.utils.basketish_order_source import BasketishOrderSource
+from shuup_tests.utils.cartish_order_source import CartishOrderSource
 
 
 @pytest.mark.django_db
@@ -66,7 +66,7 @@ def test_repackaging_fails():
 def get_order_source_with_a_package():
     package_product = get_package_product()
 
-    source = BasketishOrderSource(get_default_shop())
+    source = CartishOrderSource(get_default_shop())
     source.add_line(
         type=OrderLineType.PRODUCT,
         product=package_product,
@@ -145,7 +145,7 @@ def test_order_creator_parent_linkage():
     """
     Test OrderCreator creates parent links from OrderSource.
     """
-    source = BasketishOrderSource(get_default_shop())
+    source = CartishOrderSource(get_default_shop())
     source.status = get_initial_order_status()
     source.add_line(
         line_id='LINE1',

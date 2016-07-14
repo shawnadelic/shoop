@@ -31,7 +31,7 @@ class MethodWidget(forms.Widget):
         super(MethodWidget, self).__init__(attrs)
         self.choices = list(choices)
         self.field_name = None
-        self.basket = None
+        self.cart = None
         self.request = None
 
     def render(self, name, value, attrs=None):
@@ -40,7 +40,7 @@ class MethodWidget(forms.Widget):
                 "field_name": self.field_name,
                 "grouped_methods": _get_methods_grouped_by_service_provider(self.choices),
                 "current_value": value,
-                "basket": self.basket,
+                "cart": self.cart,
                 "request": self.request
             })
         )
@@ -70,22 +70,22 @@ class MethodsForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        self.basket = kwargs.pop("basket")
+        self.cart = kwargs.pop("cart")
         self.shop = kwargs.pop("shop")
         super(MethodsForm, self).__init__(*args, **kwargs)
         self.limit_method_fields()
 
     def limit_method_fields(self):
-        basket = self.basket  # type: shuup.front.basket.objects.BaseBasket
+        cart = self.cart  # type: shuup.front.cart.objects.BaseCart
         for field_name, methods in (
-            ("shipping_method", basket.get_available_shipping_methods()),
-            ("payment_method", basket.get_available_payment_methods()),
+            ("shipping_method", cart.get_available_shipping_methods()),
+            ("payment_method", cart.get_available_payment_methods()),
         ):
             field = self.fields[field_name]
             mci = MethodChoiceIterator(field)
             field.choices = [mci.choice(obj) for obj in methods]
             field.widget.field_name = field_name
-            field.widget.basket = self.basket
+            field.widget.cart = self.cart
             field.widget.request = self.request
             if field.choices:
                 field.initial = field.choices[0]
@@ -101,13 +101,13 @@ class MethodsPhase(CheckoutPhaseViewMixin, FormView):
         return self.storage.has_all(["shipping_method_id", "payment_method_id"])
 
     def process(self):
-        self.request.basket.shipping_method_id = self.storage["shipping_method_id"]
-        self.request.basket.payment_method_id = self.storage["payment_method_id"]
+        self.request.cart.shipping_method_id = self.storage["shipping_method_id"]
+        self.request.cart.payment_method_id = self.storage["payment_method_id"]
 
     def get_form_kwargs(self):
         kwargs = super(MethodsPhase, self).get_form_kwargs()
         kwargs["request"] = self.request
-        kwargs["basket"] = self.request.basket
+        kwargs["cart"] = self.request.cart
         kwargs["shop"] = self.request.shop
         return kwargs
 
@@ -186,11 +186,11 @@ class ShippingMethodPhase(_MethodDependentCheckoutPhase, View):
     identifier = "shipping"
 
     def get_method(self):
-        return self.request.basket.shipping_method
+        return self.request.cart.shipping_method
 
 
 class PaymentMethodPhase(_MethodDependentCheckoutPhase, View):
     identifier = "payment"
 
     def get_method(self):
-        return self.request.basket.payment_method
+        return self.request.cart.payment_method

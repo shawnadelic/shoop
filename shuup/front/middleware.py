@@ -20,7 +20,7 @@ from shuup.core.middleware import ExceptionMiddleware
 from shuup.core.models import (
     Contact, get_company_contact, get_person_contact, Shop
 )
-from shuup.front.basket import get_basket
+from shuup.front.cart import get_cart
 
 __all__ = ["ProblemMiddleware", "ShuupFrontMiddleware"]
 
@@ -38,7 +38,7 @@ class ShuupFrontMiddleware(object):
 
       .. TODO:: Fallback to shop timezone?
 
-    * Make sure that basket is saved before response is returned to the
+    * Make sure that cart is saved before response is returned to the
       browser.
 
     Attributes set for requests:
@@ -60,15 +60,15 @@ class ShuupFrontMiddleware(object):
           ``request.person`` is a
           :class:`~shuup.core.models.PersonContact`.
 
-      ``request.basket`` : :class:`shuup.front.basket.objects.BaseBasket`
-          Shopping basket in use.
+      ``request.cart`` : :class:`shuup.front.cart.objects.BaseCart`
+          Shopping cart in use.
     """
 
     def process_request(self, request):
         self._set_shop(request)
         self._set_person(request)
         self._set_customer(request)
-        self._set_basket(request)
+        self._set_cart(request)
         self._set_timezone(request)
         self._set_price_display_options(request)
 
@@ -93,8 +93,8 @@ class ShuupFrontMiddleware(object):
         request.customer = (company or request.person)
         request.is_company_member = bool(company)
 
-    def _set_basket(self, request):
-        request.basket = get_basket(request)
+    def _set_cart(self, request):
+        request.cart = get_cart(request)
 
     def _set_timezone(self, request):
         if request.person.timezone:
@@ -107,8 +107,8 @@ class ShuupFrontMiddleware(object):
         customer.get_price_display_options().set_for_request(request)
 
     def process_response(self, request, response):
-        if hasattr(request, "basket") and request.basket.dirty:
-            request.basket.save()
+        if hasattr(request, "cart") and request.cart.dirty:
+            request.cart.save()
 
         return response
 

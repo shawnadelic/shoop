@@ -14,18 +14,18 @@ from shuup.admin.utils.permissions import (
     get_default_model_permissions, get_permissions_from_urls
 )
 from shuup.admin.utils.urls import derive_model_url, get_edit_and_list_urls
-from shuup.campaigns.models import BasketCampaign, CatalogCampaign, Coupon
+from shuup.campaigns.models import CartCampaign, CatalogCampaign, Coupon
 
 
 class CampaignAdminModule(AdminModule):
     name = _(u"Campaigns")
 
     def get_urls(self):
-        basket_campaign_urls = get_edit_and_list_urls(
-            url_prefix="^campaigns/basket",
-            view_template="shuup.campaigns.admin_module.views.BasketCampaign%sView",
-            name_template="basket_campaigns.%s",
-            permissions=get_default_model_permissions(BasketCampaign)
+        cart_campaign_urls = get_edit_and_list_urls(
+            url_prefix="^campaigns/cart",
+            view_template="shuup.campaigns.admin_module.views.CartCampaign%sView",
+            name_template="cart_campaigns.%s",
+            permissions=get_default_model_permissions(CartCampaign)
         )
 
         coupon_urls = get_edit_and_list_urls(
@@ -35,7 +35,7 @@ class CampaignAdminModule(AdminModule):
             permissions=get_default_model_permissions(Coupon)
         )
 
-        return basket_campaign_urls + coupon_urls + get_edit_and_list_urls(
+        return cart_campaign_urls + coupon_urls + get_edit_and_list_urls(
             url_prefix="^campaigns/catalog",
             view_template="shuup.campaigns.admin_module.views.CatalogCampaign%sView",
             name_template="catalog_campaigns.%s",
@@ -54,9 +54,9 @@ class CampaignAdminModule(AdminModule):
                 category=category, aliases=[_("Show Catalog Campaigns")]
             ),
             MenuEntry(
-                text=_("Basket Campaigns"), icon="fa fa-file-text",
-                url="shuup_admin:basket_campaigns.list",
-                category=category, aliases=[_("Show Basket Campaigns")]
+                text=_("Cart Campaigns"), icon="fa fa-file-text",
+                url="shuup_admin:cart_campaigns.list",
+                category=category, aliases=[_("Show Cart Campaigns")]
             ),
             MenuEntry(
                 text=_("Coupons"), icon="fa fa-file-text",

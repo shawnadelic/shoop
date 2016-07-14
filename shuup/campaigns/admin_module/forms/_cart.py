@@ -8,17 +8,17 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from shuup.campaigns.models import BasketCampaign, Coupon
+from shuup.campaigns.models import CartCampaign, Coupon
 
 from ._base import BaseCampaignForm
 
 
-class BasketCampaignForm(BaseCampaignForm):
+class CartCampaignForm(BaseCampaignForm):
     class Meta(BaseCampaignForm.Meta):
-        model = BasketCampaign
+        model = CartCampaign
 
     def __init__(self, *args, **kwargs):
-        super(BasketCampaignForm, self).__init__(*args, **kwargs)
+        super(CartCampaignForm, self).__init__(*args, **kwargs)
 
         coupon_code_choices = [('', '')] + list(
             Coupon.objects.filter(

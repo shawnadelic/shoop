@@ -13,7 +13,7 @@ from shuup.front.checkout import CheckoutPhaseViewMixin
 
 class EmptyPhase(CheckoutPhaseViewMixin, TemplateView):
     identifier = "empty"
-    title = _("Empty Basket")
+    title = _("Empty Cart")
 
     template_name = "shuup/front/checkout/empty.jinja"
 

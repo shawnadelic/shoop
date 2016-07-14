@@ -10,7 +10,7 @@ import random
 from django.utils.translation import ugettext_lazy as _
 
 from shuup.campaigns.models.campaigns import (
-    BasketCampaign, CatalogCampaign, CouponUsage
+    CartCampaign, CatalogCampaign, CouponUsage
 )
 from shuup.core.models import OrderLineType
 from shuup.core.order_creator import OrderSourceModifierModule
@@ -57,12 +57,12 @@ class CatalogCampaignModule(DiscountModule):
         return price_info
 
 
-class BasketCampaignModule(OrderSourceModifierModule):
-    identifier = "basket_campaigns"
-    name = _("Campaign Basket Discounts")
+class CartCampaignModule(OrderSourceModifierModule):
+    identifier = "cart_campaigns"
+    name = _("Campaign Cart Discounts")
 
     def get_new_lines(self, order_source, lines):
-        matching_campaigns = BasketCampaign.get_matching(order_source, lines)
+        matching_campaigns = CartCampaign.get_matching(order_source, lines)
         for line in self._handle_total_discount_effects(matching_campaigns, order_source, lines):
             yield line
 
@@ -85,7 +85,7 @@ class BasketCampaignModule(OrderSourceModifierModule):
         )
 
     def can_use_code(self, order_source, code):
-        campaigns = BasketCampaign.objects.filter(active=True, coupon__code=code, coupon__active=True)
+        campaigns = CartCampaign.objects.filter(active=True, coupon__code=code, coupon__active=True)
         for campaign in campaigns:
             if not campaign.is_available():
                 continue
@@ -93,7 +93,7 @@ class BasketCampaignModule(OrderSourceModifierModule):
         return False
 
     def use_code(self, order, code):
-        campaigns = BasketCampaign.objects.filter(active=True, coupon__code=code, coupon__active=True)
+        campaigns = CartCampaign.objects.filter(active=True, coupon__code=code, coupon__active=True)
         for campaign in campaigns:
             campaign.coupon.use(order)
 
@@ -113,7 +113,7 @@ class BasketCampaignModule(OrderSourceModifierModule):
         lines = []
         for campaign in matching_campaigns:
             for effect in campaign.discount_effects.all():
-                discount_amount = effect.apply_for_basket(order_source=order_source)
+                discount_amount = effect.apply_for_cart(order_source=order_source)
                 # if campaign has coupon, match it to order_source.codes
                 if campaign.coupon:
                     # campaign was found because discount code matched. This line is always added

@@ -48,8 +48,8 @@ class TestMethodCheckoutPhase(CheckoutPhaseViewMixin, FormView):
 
     def process(self):
         data = self.storage.get(self.storage_identifier, {})
-        basket_data = getattr(self.request.basket, self.data_attribute)
-        basket_data["input_value"] = data.get("input_value")
+        cart_data = getattr(self.request.cart, self.data_attribute)
+        cart_data["input_value"] = data.get("input_value")
 
 
 class TestPaymentCheckoutPhase(TestMethodCheckoutPhase):

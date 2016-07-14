@@ -28,7 +28,7 @@ __all__ = ("regular_user",)  # noqa
 
 def get_unprocessed_request():
     request = get_request()
-    for attrname in ['shop', 'person', 'customer', 'basket']:
+    for attrname in ['shop', 'person', 'customer', 'cart']:
         assert not hasattr(request, attrname)
     return request
 
@@ -37,7 +37,7 @@ def check_request_attribute_basics(request):
     assert isinstance(request.shop, Shop)
     assert isinstance(request.person, Contact)
     assert isinstance(request.customer, Contact)
-    assert isinstance(request.basket, shuup.front.basket.objects.BaseBasket)
+    assert isinstance(request.cart, shuup.front.cart.objects.BaseCart)
 
 
 # TODO: Make these tests faster by faking the Shop and not using database

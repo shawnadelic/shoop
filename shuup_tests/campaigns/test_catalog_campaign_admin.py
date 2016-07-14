@@ -92,7 +92,7 @@ def test_campaign_creation(rf, admin_user):
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!"
+            "base-cart_line_text": "Test campaign activated!"
         }
         campaigns_before = CatalogCampaign.objects.count()
         request = apply_request_middleware(rf.post("/", data=data), user=admin_user)
@@ -122,7 +122,7 @@ def test_campaign_edit_save(rf, admin_user):
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!",
+            "base-cart_line_text": "Test campaign activated!",
             "base-start_datetime": datetime.datetime(year=2016, month=6, day=19),
             "base-end_datetime": new_end_datetime
         }
@@ -160,7 +160,7 @@ def test_campaign_end_date(rf, admin_user):
             "base-public_name__en": "Test Campaign",
             "base-shop": get_default_shop().id,
             "base-active": True,
-            "base-basket_line_text": "Test campaign activated!",
+            "base-cart_line_text": "Test campaign activated!",
             "base-start_datetime": datetime.datetime(year=2016, month=6, day=19),
             "base-end_datetime": datetime.datetime(year=2016, month=6, day=10)
         }
