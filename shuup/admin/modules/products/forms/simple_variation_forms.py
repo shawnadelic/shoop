@@ -23,7 +23,6 @@ class SimpleVariationChildForm(forms.Form):
     # TODO: Add a mode for ProductChoiceWidget to only allow eligible variation children to be selected
     child = forms.ModelChoiceField(
         queryset=Product.objects.all(),
-        widget=ProductChoiceWidget(),
         label=_('child')
     )
 
@@ -39,6 +38,8 @@ class SimpleVariationChildFormSet(ProductChildBaseFormSet):
             in self.parent_product.variation_children.all_except_deleted()
             ]
         super(SimpleVariationChildFormSet, self).__init__(**kwargs)
+        for form in self.forms:
+            form.fields["child"].widget = ProductChoiceWidget(new_product_parent=self.parent_product)
 
     def save(self):
         parent_product = self.parent_product

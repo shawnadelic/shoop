@@ -87,7 +87,7 @@ $(function() {
         const filter = $container.data("filter");
         try {
             return window.BrowseAPI.openBrowseWindow({kind, filter, onSelect: (obj) => {
-                $container.find("input").val(obj.id);
+                $container.find("input[type=hidden]").val(obj.id);
                 const $text = $container.find(".browse-text");
                 $text.text(obj.text);
                 $text.prop("href", obj.url || "#");
@@ -116,5 +116,45 @@ $(function() {
             event.preventDefault();
             return false;
         }
+    });
+
+    $(document).on("click", ".browse-widget .duplicate-btn", function() {
+        const $container = $(this).closest(".browse-widget");
+        if (!$container.length) {
+            return;
+        }
+        const $skuInput = $container.find("input.sku-input");
+        const sku = $skuInput.val();
+        const nameSuffix = $skuInput.data("suffix");
+        const parentId = $skuInput.data("parentId");
+        if (!sku){
+            window.Messages.enqueue({text: gettext("Unique SKU required to duplicate product.")});
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url: window.ShuupAdminConfig.browserUrls.duplicateProduct,
+            data: {
+                "sku": sku,
+                "id": parentId,
+                "name_suffix": nameSuffix,
+                "csrfmiddlewaretoken": window.ShuupAdminConfig.csrf,
+            },
+            success: function(data){
+                if (data.error) {
+                    window.Messages.enqueue({text: data.error});
+                }
+                else {
+                    $skuInput.val('');
+                    $container.find("input[type=hidden]").val(data.id);
+                    const $text = $container.find(".browse-text");
+                    $text.text(data.text);
+                    $text.prop("href", data.url || "#");
+                }
+            },
+            error: function(){
+                window.Messages.enqueue({text: gettext("There was an error duplicating the product.")});
+            },
+        });
     });
 });

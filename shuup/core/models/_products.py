@@ -8,9 +8,11 @@
 from __future__ import unicode_literals, with_statement
 
 import six
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
+from django.db.transaction import atomic
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from enumfields import Enum, EnumIntegerField
@@ -568,6 +570,34 @@ class Product(TaxableItem, AttributableMixin, TranslatableModel):
                 raise ImpossibleProductModeException(_("Quantity %s is invalid") % quantity, code="quantity")
             ProductPackageLink.objects.create(parent=self, child=child_product, quantity=quantity)
         self.verify_mode()
+
+    @atomic
+    def create_duplicate(self, sku, name_suffix=None):
+        from ._product_shops import ShopProduct
+        duplicate = Product.objects.get(pk=self.pk)
+        duplicate.pk = None
+        duplicate.sku = sku
+        duplicate.save()
+
+        duplicate.clear_variation()
+
+        translated_fields = ("name", "description", "slug", "keywords", "status_text", "variation_name")
+        for language in settings.PARLER_LANGUAGES[None]:
+            for field in translated_fields:
+                code = language["code"]
+                duplicate.set_current_language(code)
+                value = getattr(self, field)
+                if field == "name" and name_suffix:
+                    setattr(duplicate, field, value + " - " + name_suffix)
+                else:
+                    setattr(duplicate, field, value)
+                duplicate.save()
+
+        for shop_product in self.shop_products.all():
+            shop = shop_product.shop
+            ShopProduct.objects.create(shop=shop, product=duplicate)
+
+        return Product.objects.get(pk=duplicate.pk)
 
     def get_package_child_to_quantity_map(self):
         if self.is_package_parent():

@@ -103,8 +103,54 @@ class ImageChoiceWidget(MediaChoiceWidget):
 class ProductChoiceWidget(BasePopupChoiceWidget):
     browse_kind = "product"
 
+    def __init__(self, *args, **kwargs):
+        self.new_product_parent = kwargs.pop("new_product_parent", None)
+        self.name_suffix = kwargs.pop("name_suffix", "")
+        super(ProductChoiceWidget, self).__init__(*args, **kwargs)
+
     def get_object(self, value):
         return Product.objects.get(pk=value)
+
+    def get_sku_input_markup(self):
+        return """<input class='sku-input form-control' placeholder='SKU'
+        data-suffix='%(suffix)s' data-parent-id='%(product_id)s'></input>""" % {
+            "suffix": self.name_suffix,
+            "product_id": self.new_product_parent.id
+        }
+
+    def get_duplicate_product_markup(self):
+        icon = "<i class='fa fa-cross'></i>"
+        return "<button class='duplicate-btn btn btn-default btn-sm' type='button'>%(icon)s %(text)s</button>" % {
+            "icon": icon,
+            "text": _("Duplicate Parent")
+        }
+
+    def render(self, name, value, attrs=None):
+        if value:
+            obj = self.get_object(value)
+        else:
+            obj = None
+        pk_input = HiddenInput().render(name, value, attrs)
+        media_text = self.render_text(obj)
+        bits = [self.get_browse_markup(), pk_input, " ", media_text]
+
+        if self.clearable:
+            bits.insert(1, self.get_clear_markup())
+
+        if self.new_product_parent:
+            bits.insert(1, self.get_duplicate_product_markup())
+            bits.insert(1, self.get_sku_input_markup())
+
+        return mark_safe("<div %(attrs)s>%(content)s</div>" % {
+            "attrs": flatatt_filter({
+                "class": "browse-widget %s-browse-widget" % self.browse_kind,
+                "data-browse-kind": self.browse_kind,
+                "data-clearable": self.clearable,
+                "data-empty-text": self.empty_text,
+                "data-filter": self.filter
+            }),
+            "content": "".join(bits)
+        })
 
 
 class ContactChoiceWidget(BasePopupChoiceWidget):

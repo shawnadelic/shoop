@@ -61,6 +61,11 @@ class ProductModule(AdminModule):
                 name="product.edit_package",
                 permissions=get_default_model_permissions(ProductPackageLink),
             ),
+            admin_url(
+                "^products/duplicate/$", "shuup.admin.modules.products.views.ProductDuplicateView",
+                name="product.duplicate",
+                permissions=get_default_model_permissions(Product),
+            ),
         ] + get_edit_and_list_urls(
             url_prefix="^products",
             view_template="shuup.admin.modules.products.views.Product%sView",

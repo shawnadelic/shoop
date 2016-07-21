@@ -39,7 +39,9 @@ class VariableVariationChildrenForm(forms.Form):
             field = forms.ModelChoiceField(
                 queryset=Product.objects.all(),
                 # TODO: Add a mode for ProductChoiceWidget to only allow eligible variation children to be selected
-                widget=ProductChoiceWidget(clearable=True),
+                widget=ProductChoiceWidget(
+                    clearable=True, new_product_parent=self.parent_product, name_suffix=combo["sku_part"]
+                ),
                 required=False,
                 initial=combo["result_product_pk"],
                 label=_("variable combination")

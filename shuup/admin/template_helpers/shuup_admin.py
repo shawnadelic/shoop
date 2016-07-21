@@ -56,6 +56,7 @@ BROWSER_URL_NAMES = {
     "product": "shuup_admin:product.list",
     "contact": "shuup_admin:contact.list",
     "setLanguage": "shuup_admin:set-language",
+    "duplicateProduct": "shuup_admin:product.duplicate",
 }
 
 
