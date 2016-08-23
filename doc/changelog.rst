@@ -28,6 +28,8 @@ Addons
 Front
 ~~~~~
 
+- Fix product search to only show searchable products
+
 Xtheme
 ~~~~~~
 
