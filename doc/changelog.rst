@@ -12,6 +12,8 @@ Unreleased
 Core
 ~~~~
 
+- Add visibility field to ShopProduct
+
 Localization
 ~~~~~~~~~~~~
 
