@@ -226,11 +226,30 @@ class BaseBasket(OrderSource):
         if self.dirty or not self._lines_cache:
             lines = [BasketLine.from_dict(self, line) for line in self._data_lines]
             orderable_lines = []
+            orderable_counter = Counter()
             for line in lines:
+                product = line.product
                 if line.type != OrderLineType.PRODUCT:
                     orderable_lines.append(line)
-                elif line.shop_product.is_orderable(line.supplier, self.request.customer, line.quantity):
-                    orderable_lines.append(line)
+                else:
+                    quantity = line.quantity + orderable_counter[product.id]
+                    if line.shop_product.is_orderable(line.supplier, self.request.customer, quantity):
+                        if product.is_package_parent():
+                            quantity_map = product.get_package_child_to_quantity_map()
+                            orderable = True
+                            for child_product, child_quantity in six.iteritems(quantity_map):
+                                sp = child_product.get_shop_instance(shop=self.shop)
+                                total_child_quantity = ((line.quantity * child_quantity) +
+                                                        orderable_counter[child_product.id])
+                                if not sp.is_orderable(line.supplier, self.request.customer, total_child_quantity):
+                                    orderable = False
+                            if orderable:
+                                for child_product, child_quantity in six.iteritems(quantity_map):
+                                    orderable_counter[child_product.id] += child_quantity * line.quantity
+                                    orderable_lines.append(line)
+                        else:
+                            orderable_counter[product.id] += line.quantity
+                            orderable_lines.append(line)
             self._lines_cache = orderable_lines
         return self._lines_cache
 
@@ -400,13 +419,15 @@ class BaseBasket(OrderSource):
             msg = _("Products in basket have no common payment method. %s")
             yield ValidationError(msg % advice, code="no_common_payment")
 
-    def get_product_ids_and_quantities(self):
+    def get_product_ids_and_quantities(self):  # TODO: Move this to OrderSource
         q_counter = Counter()
         for line in self.get_lines():
-            product_id = line.product.id if line.product else None
-            if product_id:
-                q_counter[product_id] += line.quantity
+            if line.product:
+                quantity_map = line.product.get_package_child_to_quantity_map()
+                for child_product, child_quantity in six.iteritems(quantity_map):
+                    q_counter[child_product.id] += line.quantity * child_quantity
 
+                q_counter[line.product.id] += line.quantity
         return dict(q_counter)
 
     def get_available_shipping_methods(self):

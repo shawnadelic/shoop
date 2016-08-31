@@ -38,14 +38,13 @@ class BasketUpdateMethods(object):
         if line:
             return self.basket.delete_line(line["line_id"])
 
-    def _get_orderability_errors(self, basket_line, new_quantity):
-        product = Product.objects.get(pk=basket_line["product_id"])
+    def _get_orderability_errors(self, product, supplier, delta):
+        in_basket_quantity = self.basket.get_product_ids_and_quantities().get(product.id, 0)
         shop_product = product.get_shop_instance(shop=self.request.shop)
-        supplier = Supplier.objects.filter(pk=basket_line.get("supplier_id", 0)).first()
         return shop_product.get_orderability_errors(
             supplier=supplier,
             customer=self.basket.customer,
-            quantity=new_quantity
+            quantity=(delta + in_basket_quantity)
         )
 
     def update_quantity(self, line, value, **kwargs):
@@ -60,8 +59,16 @@ class BasketUpdateMethods(object):
 
         # Ensure sub-lines also get changed accordingly
         linked_lines = [line] + list(self.basket.find_lines_by_parent_line_id(line["line_id"]))
+        new_quantity_delta = new_quantity - line["quantity"]
         for linked_line in linked_lines:
-            errors = list(self._get_orderability_errors(linked_line, new_quantity))
+            product = Product.objects.get(pk=linked_line["product_id"])
+            supplier = Supplier.objects.filter(pk=linked_line.get("supplier_id", 0)).first()
+            errors = list(self._get_orderability_errors(product, supplier, new_quantity_delta))
+            if product.is_package_parent():
+                for child_product, child_quantity in six.iteritems(product.get_package_child_to_quantity_map()):
+                    child_delta = new_quantity_delta * child_quantity
+                    child_errors = self._get_orderability_errors(child_product, supplier, child_delta)
+                    errors.extend(list(child_errors))
             if errors:
                 for error in errors:
                     error_texts = ", ".join(six.text_type(sub_error) for sub_error in error)
